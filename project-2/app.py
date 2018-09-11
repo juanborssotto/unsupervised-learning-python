@@ -17,7 +17,6 @@ def handle_non_numerical_data(df):
     for column in columns:
         text_digit_vals = {}
         def convert_to_int(val):
-            print(val)
             return text_digit_vals[val]
         
         if df[column].dtype != np.int64 and df[column].dtype != np.float64:
@@ -47,13 +46,13 @@ for i in range(len(df)):
     plt.plot(df['age'][i], df['pclass'][i], colors[labels[i]], markersize=5)
 plt.ylabel('Class')
 plt.xlabel('Age')
-# plt.show()
+plt.show()
 
 for i in range(len(df)):
     plt.plot( df['age'][i],df['sex'][i], colors[labels[i]], markersize=5)
 plt.ylabel('Sex')
 plt.xlabel('Age')
-# plt.show()
+plt.show()
 
 correct = 0
 for i in range(len(X)):
