@@ -39,6 +39,7 @@ y = np.array(df['survived'])
 clf = KMeans(n_clusters=2)
 clf.fit(X)
 labels = clf.labels_
+print(labels[2])
 
 colors = ['r.', 'g.']
 
