@@ -6,10 +6,11 @@ from sklearn.cluster import KMeans
 from sklearn import preprocessing
 import pandas as pd
 from collections import defaultdict
+import math
 
-df_nn = pd.read_csv('games-2.csv')
-df = pd.read_csv('games-2.csv')
-df.drop(['Name'], 1, inplace=True)
+df_nn = pd.read_csv('games.csv')
+df = pd.read_csv('games.csv')
+df.drop(['Name', 'NA_Sales', 'EU_Sales', 'JP_Sales', 'Other_Sales', 'Global_Sales', 'Critic_Score', 'Critic_Count', 'Rating'], 1, inplace=True)
 
 df.convert_objects(convert_numeric=True)
 df.fillna(0, inplace=True)
@@ -35,51 +36,51 @@ def handle_non_numerical_data(df):
 
 df = handle_non_numerical_data(df)
 
-# X = np.array(df.drop(['Year_of_Release'], 1).astype(float))
-X = preprocessing.scale(df)
-# y = np.array(df['survived'])
-
-clf = KMeans(n_clusters=5)
-clf.fit(X)
+num_clusters=6
+clf = KMeans(n_clusters=num_clusters)
+clf.fit(df)
 labels = clf.labels_
 
-colors = ['r.', 'g.', 'b.', 'y.', 'm.']
-
-# for i in range(len(df)):
-#     plt.plot(df['Global_Sales'][i], df['Year_of_Release'][i], colors[labels[i]], markersize=5)
-# plt.ylabel('Year of release')
-# plt.xlabel('Genre')
-# plt.show()
-
-for j in range(len(colors)):
+for j in range(num_clusters):
     publishers_count = defaultdict(int)
     avg_global_sales = 0.0
+    avg_critic_score = 0.0
     c = 0
     for i in range(len(df)):
         if labels[i] == j:
             publishers_count[df_nn['Publisher'][i]]+= 1
             c+= 1
             avg_global_sales+= df_nn['Global_Sales'][i]
+            avg_critic_score+= df_nn['Critic_Score'][i] if not math.isnan(df_nn['Critic_Score'][i]) else 0.0
+    print('')
     print('Cluster '+ str(j))
-    print('Avg global sales '+ str(avg_global_sales / c))
+    print('Avg global sales '+ str(avg_global_sales / c) + ' millions copies')
+    print('Avg Critic Score ' + str(avg_critic_score / c))
     print('Top publisher ' + str(max(publishers_count, key=publishers_count.get)))
 
-# for i in range(len(df)):
-#     plt.plot( df['Year_of_Release'][i],df['Publisher'][i], colors[labels[i]], markersize=5)
-# plt.ylabel('Sex')
-# plt.xlabel('Age')
-# plt.show()
+plat_to_pred = '3DS'
+year_of_rel_to_pred = 2011
+genre_to_pred = 'Racing'
+publ_to_pred = 'Nintendo'
+usr_score_to_pred = 7.0
+usr_count_to_pred = 924
+for i in range(len(df)):
+    if(df_nn['Platform'][i] == plat_to_pred):
+        pred_plat = df['Platform'][i]
+    if(df_nn['Genre'][i] == genre_to_pred):
+        pred_genre = df['Genre'][i]
+    if(df_nn['Publisher'][i] == publ_to_pred):
+        pred_publ = df['Publisher'][i]
 
-predict_me = np.array(X[0].astype(float))
-print(predict_me)
-
-# correct = 0
-# for i in range(len(X)):
-#     predict_me = np.array(X[i].astype(float))
-#     predict_me = predict_me.reshape(-1, len(predict_me))
-#     prediction = clf.predict(predict_me)
-#     if prediction[0] == y[i]:
-#         correct+=1
-# print(correct)
-# print(len(X))
-# print(float(correct)/float(len(X)))
+predict_me = [[pred_plat, year_of_rel_to_pred, pred_genre, pred_publ, usr_score_to_pred, usr_count_to_pred]]
+prediction = clf.predict(predict_me)
+print('')
+print('Prediction with values:')
+print('Platform: {0}'.format(plat_to_pred))
+print('Year of release: {0}'.format(year_of_rel_to_pred))
+print('Genre: {0}'.format(genre_to_pred))
+print('Publisher: {0}'.format(publ_to_pred))
+print('Avg user score: {0}'.format(usr_score_to_pred))
+print('User count: {0}'.format(usr_count_to_pred))
+print('')
+print('Belongs to cluster: {0}'.format(prediction[0]))
